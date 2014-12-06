@@ -5,6 +5,6 @@ package de.htwg.scala.model
  * 
  * 
  */
-class Meeple(id: Int, player: Player, currentField: Field) {
+class Meeple(val id: Int, var player: Player, var currentField: Field) {
   
 }

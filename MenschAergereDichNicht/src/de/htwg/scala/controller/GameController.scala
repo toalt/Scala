@@ -11,33 +11,37 @@ import de.htwg.scala.model.PlayBoard
 class GameController {
   
   private val dice = Dice
-  private val playerArray = new Array[Player](4)
+  private var playerArray:Array[Player] = null
   private var board:PlayBoard = null
-  private var currentPlayer:Int = 1
   private var currentRound:Int = 0
   private var playerAmount:Int = 4
   private var isRolled:Boolean = false
-  private var gameIsStarted = false
-  
+  var gameIsStarted = false
+  var currentPlayer:Int = 1
   
   def startGame(playerNames:Array[Player]) {
-    for (position <- 0 until playerArray.size) {
+    playerArray = playerNames
+    /*for (position <- 0 until playerArray.size) {
       val player = new Player(position, playerNames(position).name)
       playerArray(position) = player
-    }
+    }*/
     board = new PlayBoard(playerArray)
     currentRound = 1
     playerAmount = playerArray.size
     gameIsStarted = true
-    
+    board.initBoard()
   }
   
   def stopGame {
-    
+    gameIsStarted = false
+  }
+  
+  def checkMoveable(player:Int):Boolean = {
+    // TODO Prüfen ob man eine figur vom Spieler bewegen kann
+    true
   }
   
   private def nextMove {
-    val result = dice.getNumber()
     
   }
   
@@ -55,5 +59,17 @@ class GameController {
   
   private def removeMeeple(meeple:Meeple) {
     
+  
+ }
+  
+  def getMeeple() {
+    
   }
+  
+  def isOnHomeField(player: Player): Boolean = {
+  //  board.
+    board.checkHomeFields(player)
+    true
+  }
+  
 }
