@@ -6,9 +6,9 @@ import de.htwg.scala.util.FieldTypeEnum
 import de.htwg.scala.util.MeepleColorEnum
 
 class PlayBoard(player: Array[Player]) {
-  private val standardFields = new Array[StandardField](39)
-  private val goalFields = collection.mutable.Map[MeepleColorEnum.Value, GoalField]()
-  private val homeFields = collection.mutable.Map[MeepleColorEnum.Value, HomeField]()
+  private val standardFields = new Array[StandardField](40)
+  private val goalFields = collection.mutable.Map[MeepleColorEnum.Value, Array[Field]]()
+  private val homeFields = collection.mutable.Map[MeepleColorEnum.Value, Array[Field]]()
 
   val playerMeeple = collection.mutable.Map[Player, Meeple]()
 
@@ -17,10 +17,10 @@ class PlayBoard(player: Array[Player]) {
     buildFields()
 
     //TODO besser machen
-    for (number <- 0 until player.size) {
-      for (i <- 0 until 4) {
-        var meeple: Meeple = new Meeple(number + i, player(number), homeFields(player(number).color))
-        playerMeeple += (player(number) -> meeple)
+    for (numberPlayer <- 0 until player.size) {
+      for (numberMeeple <- 0 until 4) {
+        var meeple: Meeple = new Meeple(player(numberPlayer).id, player(numberPlayer), homeFields(player(numberPlayer).color)(numberMeeple))
+        playerMeeple += (player(numberPlayer) -> meeple)
       }
 
     }
@@ -39,52 +39,89 @@ class PlayBoard(player: Array[Player]) {
       standardFields(position) = field
     }
 
-    for (position <- 0 until MeepleColorEnum.maxId) {
-      for (position <- 0 until 4) {
+    for (i <- 0 until MeepleColorEnum.maxId) {
+      val gfArray = new Array[Field](4)
+      val hfArray = new Array[Field](4)
+      for (j <- 0 until 4) {
         // Initialize GoalFields
-        //new GoalField(position, FieldTypeEnum.GOAL_FIELD)
-        goalFields += (MeepleColorEnum(position) -> new GoalField(position, FieldTypeEnum.GOAL_FIELD))
-
+        val gf = new GoalField(i+j, FieldTypeEnum.GOAL_FIELD)
+        gfArray(j) = gf
         // Initialize Homefields
-        //new HomeField(position, FieldTypeEnum.HOME_FIELD)
-        homeFields += (MeepleColorEnum(position) -> new HomeField(position, FieldTypeEnum.HOME_FIELD))
+        val hf = new HomeField(i+j, FieldTypeEnum.HOME_FIELD)
+        hf.taken = true
+        hfArray(j) = hf
       }
+      goalFields += (MeepleColorEnum(i) -> gfArray)
+      homeFields += (MeepleColorEnum(i) -> hfArray)
     }
 
   }
 
-  def setField(field: Field) {
-
+  def setField(newField: Field): Boolean = {
+    /*if (newField.equals(null)) return false
+    newField.fieldType match {
+      case FieldTypeEnum.HOME_FIELD =>
+      case FieldTypeEnum.GOAL_FIELD=>
+      case FieldTypeEnum.STANDARD =>
+    }*/
+    true
   }
 
   def createMeeples() {
 
   }
 
-  def moveMeeple(meeple: Meeple) {
+  def moveMeeple(player: Player, meeple: Meeple, toField: Field) {
+    // TODO NEXT: 
+    var oldField: Field = meeple.getField(player)
+    oldField.taken = false
+    toField.taken = true
+    
+    oldField.fieldType match {
+      case FieldTypeEnum.HOME_FIELD => {
+        homeFields(player.color)(oldField.position) = oldField
+      }
+      case FieldTypeEnum.GOAL_FIELD => {
+        goalFields(player.color)(oldField.position) = oldField
+      }
+
+    }
+    meeple.setField(player, toField)
+
+    //var ms: Array[Meeple] = playerMeeple(player)
+    //println(playerMeeple)
 
   }
 
-  private def getMeeples(player: Player): Array[Meeple] = {
+  def getMeeples(player: Player): Array[Meeple] = {
+    val meeples = new Array[Meeple](4)
+    var index: Int = 0
     playerMeeple.keys.foreach { i =>
-      print("Key = " + i)
-      println(" Value = " + playerMeeple(i))
+      //println("Key: " + i)
+      meeples(index) = playerMeeple(i)
+      index += 1
     }
 
-    return new Array[Meeple](4)
+    return meeples
   }
 
+  // TODO muss das in den Controller?
   def checkHomeFields(player: Player): Array[Meeple] = {
     var meeples: Array[Meeple] = getMeeples(player)
     var homeMeeples: Array[Meeple] = new Array[Meeple](4)
     for (position <- 0 until meeples.size) {
       var m: Meeple = meeples(position)
-      if (m.currentField.fieldType == FieldTypeEnum.HOME_FIELD) {
+      if (m.isFieldType(FieldTypeEnum.HOME_FIELD)) {
         // TODO besser/kompakter schreiben  mit filter oder so
         homeMeeples(position) = m
       }
     }
     return homeMeeples
+  }
+
+  def checkStartFieldIsTaken(color: MeepleColorEnum.Value): Boolean = {
+
+    true
   }
 
 }

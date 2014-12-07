@@ -14,7 +14,7 @@ class TuiView(controller: GameController) {
   var actualField: String = playboardFile
   var state: String = "Init"
   var players: Array[Player] = null
-  
+
   def showIntro() {
     println("Mensch ärgere dich nicht!")
     println("Version 1.0")
@@ -39,6 +39,7 @@ class TuiView(controller: GameController) {
   }
 
   def showGameCommands() {
+    println("")
     println("W - Würfeln")
     if (controller.checkMoveable(controller.currentPlayer)) println("M - Spielfigur bewegen")
     println("H - Hilfe")
@@ -46,7 +47,7 @@ class TuiView(controller: GameController) {
   }
 
   def showGameField() {
-    printf(playboardFile)
+    println(playboardFile)
     state = "inGame"
   }
 
@@ -72,7 +73,7 @@ class TuiView(controller: GameController) {
         controller.stopGame
       }
       case "N" => {
-        
+
         players = readNames()
         controller.startGame(players)
         showGameField()
@@ -85,32 +86,51 @@ class TuiView(controller: GameController) {
         continue = true
       }
     }
+    println("Aktueller Spieler: " + controller.currentPlayer)
     continue
 
   }
 
   def readCommandGame(command: String): Boolean = {
-
     var continue = true
     command match {
       case "W" => {
-        val nextValue = controller.roll
+        var nextValue = controller.roll
         showDicing(nextValue)
-        if(controller.checkMoveable(controller.currentPlayer)) {
-        //  if(controller.isOnHomeField(players[controller.currentPlayer]))
-          if(controller.isOnHomeField(players(controller.currentPlayer))) {
-              val next = controller.roll
-              showDicing(next)
-              if(next == 6) {
-                // Im Controller auslagern 
+
+        if (controller.checkMoveable(controller.currentPlayer)) {
+          if (controller.isOnHomeField(players(controller.currentPlayer))) {
+            var i: Int = 1
+            //rekursiv
+            def roller(): Boolean = {
+
+              if (i.equals(3)) {
+                return false //drittes mal würfeln
               }
-            
+              if (nextValue.equals(6)) {
+                return true
+              }
+              i += 1
+              nextValue = controller.roll
+              showDicing(nextValue)
+              return roller()
+            }
+
+            if (roller) {
+              println("Du kannst auf das Startfeld!")
+              //TODO NExt... 
+              //controller.moveMeeple(toField)
+            }
+
+            controller.nextMove
+            showGameField()
           }
-        }
-        else {
+
+        } else {
           println("Spieler " + controller.currentPlayer + " kann keine Figur bewegen")
         }
-        
+        showGameCommands()
+        println("Aktueller Spieler: " + controller.currentPlayer)
       }
       case "M" => {
         if (controller.checkMoveable(controller.currentPlayer)) {
@@ -118,8 +138,8 @@ class TuiView(controller: GameController) {
         }
       }
       case "H" => {
-       showExplanation()
-       showGameCommands()
+        showExplanation()
+        showGameCommands()
       }
       case "B" => {
         continue = false
@@ -131,8 +151,8 @@ class TuiView(controller: GameController) {
   }
 
   def showDicing(nextValue: Int) = {
-    print("Würfeln..")
-    Thread.sleep(2000)
+    println("Würfeln..")
+    Thread.sleep(1000)
     println(nextValue)
     println("Bitte mit Eingabe bestätigen")
     readLine()

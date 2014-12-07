@@ -4,6 +4,6 @@ import scala.util.Random
 
 object Dice {
 
-  def getNumber():Int = new Random().nextInt(6)
+  def getNumber():Int = (new Random().nextInt(6) + 1) 
 
 }
