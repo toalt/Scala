@@ -29,8 +29,11 @@ class GameController {
     playerAmount = playerArray.size
     gameIsStarted = true
     board.initBoard()
+    println("currentplayer: " + currentPlayer)
+    println("playerArray.size: " + playerArray.size)
     currentChoosedMeeple = board.checkHomeFields(playerArray(currentPlayer))(0) //Erste Figur zuweisen im Homefeld
-    currentPlayer = 1
+    println("currentChoosedMeeple " + currentChoosedMeeple)
+    currentPlayer = 0
   }
 
   def stopGame {

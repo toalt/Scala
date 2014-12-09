@@ -10,21 +10,31 @@ class PlayBoard(player: Array[Player]) {
   private val goalFields = collection.mutable.Map[MeepleColorEnum.Value, Array[Field]]()
   private val homeFields = collection.mutable.Map[MeepleColorEnum.Value, Array[Field]]()
 
-  val playerMeeple = collection.mutable.Map[Player, Meeple]()
+  val playerMeeple = collection.mutable.Map[Player, Array[Meeple]]()
 
   def initBoard() {
 
     buildFields()
-
+    buildPlayerAndMeeples()
     //TODO besser machen
-    for (numberPlayer <- 0 until player.size) {
+    /*for (numberPlayer <- 0 until player.size) {
+      var meepleArray: Array[Meeple] = new Array[Meeple](4)
       for (numberMeeple <- 0 until 4) {
-        var meeple: Meeple = new Meeple(player(numberPlayer).id, player(numberPlayer), homeFields(player(numberPlayer).color)(numberMeeple))
-        playerMeeple += (player(numberPlayer) -> meeple)
+        meepleArray(numberMeeple) = new Meeple(player(numberPlayer).id, player(numberPlayer), homeFields(player(numberPlayer).color)(numberMeeple))
       }
+      playerMeeple += (player(numberPlayer) -> meepleArray)
+    }*/
 
+  }
+
+  private def buildPlayerAndMeeples() = {//TODO besser machen
+    for (numberPlayer <- 0 until player.size) {
+      var meepleArray: Array[Meeple] = new Array[Meeple](4)
+      for (numberMeeple <- 0 until 4) {
+        meepleArray(numberMeeple) = new Meeple(player(numberPlayer).id, player(numberPlayer), homeFields(player(numberPlayer).color)(numberMeeple))
+      }
+      playerMeeple += (player(numberPlayer) -> meepleArray)
     }
-
   }
 
   private def buildFields() {
@@ -44,10 +54,10 @@ class PlayBoard(player: Array[Player]) {
       val hfArray = new Array[Field](4)
       for (j <- 0 until 4) {
         // Initialize GoalFields
-        val gf = new GoalField(i+j, FieldTypeEnum.GOAL_FIELD)
+        val gf = new GoalField(i + j, FieldTypeEnum.GOAL_FIELD)
         gfArray(j) = gf
         // Initialize Homefields
-        val hf = new HomeField(i+j, FieldTypeEnum.HOME_FIELD)
+        val hf = new HomeField(i + j, FieldTypeEnum.HOME_FIELD)
         hf.taken = true
         hfArray(j) = hf
       }
@@ -68,7 +78,7 @@ class PlayBoard(player: Array[Player]) {
   }
 
   def createMeeples() {
-
+//TODO brauchen wir doch nicht
   }
 
   def moveMeeple(player: Player, meeple: Meeple, toField: Field) {
@@ -76,7 +86,7 @@ class PlayBoard(player: Array[Player]) {
     var oldField: Field = meeple.getField(player)
     oldField.taken = false
     toField.taken = true
-    
+
     oldField.fieldType match {
       case FieldTypeEnum.HOME_FIELD => {
         homeFields(player.color)(oldField.position) = oldField
@@ -94,15 +104,16 @@ class PlayBoard(player: Array[Player]) {
   }
 
   def getMeeples(player: Player): Array[Meeple] = {
-    val meeples = new Array[Meeple](4)
+    /*val meeples = new Array[Meeple](4)
     var index: Int = 0
     playerMeeple.keys.foreach { i =>
-      //println("Key: " + i)
+      val tmpArray: Array[Meeple] = playerMeeple(i)
       meeples(index) = playerMeeple(i)
       index += 1
     }
-
-    return meeples
+    println("meeple: " + meeples(0))*/
+    
+    return playerMeeple(player)
   }
 
   // TODO muss das in den Controller?
@@ -123,5 +134,4 @@ class PlayBoard(player: Array[Player]) {
 
     true
   }
-
 }
